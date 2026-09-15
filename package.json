@@ -1,0 +1,21 @@
+{
+  "name": "physics-yar-backend",
+  "version": "1.0.0",
+  "description": "Backend API for فیزیک‌یار — auth, clips catalog, cart, Zarinpal payment, secure downloads",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.12.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "dotenv": "^16.4.5",
+    "cors": "^2.8.5",
+    "@aws-sdk/client-s3": "^3.606.0",
+    "@aws-sdk/s3-request-presigner": "^3.606.0",
+    "axios": "^1.7.2"
+  }
+}
