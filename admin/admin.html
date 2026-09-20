@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل مدیریت فیزیک‌یار</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --navy:#0b1f52; --amber:#f6c14c; --paper:#F6F2E9; --line:#DCD3BE; --ink:#20242c; --ink-soft:#5b6270; }
+  *{box-sizing:border-box;}
+  body{font-family:'Vazirmatn',sans-serif;background:var(--paper);color:var(--ink);margin:0;padding:20px;max-width:900px;margin-inline:auto;}
+  h1{color:var(--navy);font-size:20px;}
+  h2{color:var(--navy);font-size:16px;margin-top:28px;}
+  .card{background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:18px;margin-bottom:16px;}
+  label{display:block;font-size:13px;color:var(--ink-soft);margin:10px 0 4px;}
+  input,select{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-radius:8px;font-family:inherit;font-size:14px;}
+  button{background:var(--amber);border:none;border-radius:8px;padding:10px 16px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:12px;}
+  button.secondary{background:#fff;border:1.5px solid var(--line);}
+  button.danger{background:#e05555;color:#fff;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;}
+  .row > *{flex:1;min-width:160px;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px;}
+  td,th{padding:8px;border-bottom:1px solid var(--line);text-align:right;}
+  #loginBox{max-width:360px;margin:60px auto;}
+  .hidden{display:none;}
+  .status{font-size:13px;color:var(--ink-soft);margin-top:8px;}
+  .checkbox-row{display:flex;align-items:center;gap:8px;margin-top:12px;}
+  .checkbox-row input{width:auto;}
+</style>
+</head>
+<body>
+
+<div id="loginBox" class="card">
+  <h1>ورود مدیر</h1>
+  <label>شماره موبایل</label>
+  <input id="loginPhone" placeholder="09xxxxxxxxx">
+  <label>رمز عبور</label>
+  <input id="loginPassword" type="password">
+  <button onclick="login()">ورود</button>
+  <div class="status" id="loginStatus"></div>
+</div>
+
+<div id="app" class="hidden">
+  <h1>پنل مدیریت کلیپ‌های فیزیک‌یار</h1>
+
+  <div class="card">
+    <h2>۱. مسیر را انتخاب یا بسازید</h2>
+    <div class="row">
+      <div>
+        <label>رشته</label>
+        <select id="majorSelect" onchange="onMajorChange()"></select>
+      </div>
+      <div>
+        <label>پایه</label>
+        <select id="gradeSelect" onchange="onGradeChange()"></select>
+      </div>
+    </div>
+    <div class="row">
+      <input id="newGradeTitle" placeholder="نام پایهٔ جدید (مثلاً یازدهم)">
+      <button class="secondary" onclick="addGrade()">افزودن پایه</button>
+    </div>
+
+    <div class="row" style="margin-top:16px;">
+      <div>
+        <label>فصل</label>
+        <select id="chapterSelect" onchange="onChapterChange()"></select>
+      </div>
+      <div>
+        <label>بخش</label>
+        <select id="sectionSelect"></select>
+      </div>
+    </div>
+    <div class="row">
+      <input id="newChapterTitle" placeholder="نام فصل جدید">
+      <button class="secondary" onclick="addChapter()">افزودن فصل</button>
+    </div>
+    <div class="row">
+      <input id="newSectionTitle" placeholder="نام بخش جدید">
+      <button class="secondary" onclick="addSection()">افزودن بخش</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>۲. کلیپ جدید اضافه کنید</h2>
+    <label>عنوان کلیپ</label>
+    <input id="clipTitle" placeholder="مثلاً: تدریس مفهوم سرعت لحظه‌ای">
+    <label>مدت زمان (اختیاری، مثلاً 12:30)</label>
+    <input id="clipDuration" placeholder="12:30">
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="clipFree" onchange="toggleFree()">
+      <label style="margin:0;">این کلیپ کلاً رایگان است</label>
+    </div>
+    <div id="priceField">
+      <label>قیمت (تومان)</label>
+      <input id="clipPrice" type="number" placeholder="45000">
+    </div>
+
+    <label>فایل پیش‌نمایش (رایگان)</label>
+    <input id="filePreview" type="file" accept="video/*">
+    <label>فایل کامل</label>
+    <input id="fileFull" type="file" accept="video/*">
+    <label>فایل PDF (اختیاری)</label>
+    <input id="filePdf" type="file" accept="application/pdf">
+
+    <button onclick="submitClip()">آپلود و ثبت کلیپ</button>
+    <div class="status" id="uploadStatus"></div>
+  </div>
+
+  <div class="card">
+    <h2>اخبار و اطلاعیه‌ها</h2>
+    <label>عنوان خبر</label>
+    <input id="newsTitle" placeholder="مثلاً: کلیپ‌های فصل جدید اضافه شد">
+    <label>متن خبر</label>
+    <input id="newsBody" placeholder="متن کامل خبر">
+    <button onclick="submitAnnouncement()">انتشار خبر</button>
+    <div class="status" id="newsStatus"></div>
+    <table style="margin-top:16px;">
+      <thead><tr><th>عنوان</th><th>تاریخ</th><th></th></tr></thead>
+      <tbody id="newsBody_list"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>۳. کلیپ‌های این بخش</h2>
+    <table>
+      <thead><tr><th>عنوان</th><th>قیمت</th><th>PDF</th><th></th></tr></thead>
+      <tbody id="clipsBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ⚠️ Change this to your backend's real HTTPS address once deployed.
+const API_BASE = "https://physics-yar.ir/api";
+
+let token = localStorage.getItem("physicsyar_admin_token") || null;
+let treeData = { grades: [], chapters: [], sections: [], clips: [] };
+let majors = [];
+
+if (token) showApp();
+
+async function api(path, options = {}) {
+  const res = await fetch(API_BASE + path, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: "Bearer " + token } : {}),
+      ...(options.headers || {})
+    }
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "خطا در ارتباط با سرور");
+  return data;
+}
+
+async function login() {
+  const phone = document.getElementById("loginPhone").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const statusEl = document.getElementById("loginStatus");
+  try {
+    const data = await api("/auth/login", { method: "POST", body: JSON.stringify({ phone, password }) });
+    if (!data.user.isAdmin) { statusEl.textContent = "این حساب مدیر نیست."; return; }
+    token = data.token;
+    localStorage.setItem("physicsyar_admin_token", token);
+    showApp();
+  } catch (e) {
+    statusEl.textContent = e.message;
+  }
+}
+
+async function showApp() {
+  document.getElementById("loginBox").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  majors = await api("/admin/majors");
+  const majorSelect = document.getElementById("majorSelect");
+  majorSelect.innerHTML = majors.map(m => `<option value="${m.id}">${m.title}</option>`).join("");
+  await loadTree();
+  await loadAnnouncements();
+  onMajorChange();
+}
+
+async function loadTree() {
+  treeData = await api("/admin/tree");
+}
+
+function onMajorChange() {
+  const majorId = Number(document.getElementById("majorSelect").value);
+  const gradeSelect = document.getElementById("gradeSelect");
+  const grades = treeData.grades.filter(g => g.major_id === majorId);
+  gradeSelect.innerHTML = grades.map(g => `<option value="${g.id}">${g.title}</option>`).join("");
+  onGradeChange();
+}
+
+function onGradeChange() {
+  const gradeId = Number(document.getElementById("gradeSelect").value);
+  const chapterSelect = document.getElementById("chapterSelect");
+  const chapters = treeData.chapters.filter(c => c.grade_id === gradeId);
+  chapterSelect.innerHTML = chapters.map(c => `<option value="${c.id}">${c.title}</option>`).join("");
+  onChapterChange();
+}
+
+function onChapterChange() {
+  const chapterId = Number(document.getElementById("chapterSelect").value);
+  const sectionSelect = document.getElementById("sectionSelect");
+  const sections = treeData.sections.filter(s => s.chapter_id === chapterId);
+  sectionSelect.innerHTML = sections.map(s => `<option value="${s.id}">${s.title}</option>`).join("");
+  renderClips();
+}
+
+function renderClips() {
+  const sectionId = Number(document.getElementById("sectionSelect").value);
+  const clips = treeData.clips.filter(c => c.section_id === sectionId);
+  document.getElementById("clipsBody").innerHTML = clips.map(c => `
+    <tr>
+      <td>${c.title}</td>
+      <td>${c.is_free ? "رایگان" : c.price.toLocaleString("fa-IR") + " ت"}</td>
+      <td>${c.pdf_object_key ? "دارد" : "—"}</td>
+      <td><button class="danger" onclick="deleteClip(${c.id})">حذف</button></td>
+    </tr>`).join("");
+}
+
+document.getElementById("sectionSelect").addEventListener("change", renderClips);
+
+async function addGrade() {
+  const majorId = document.getElementById("majorSelect").value;
+  const title = document.getElementById("newGradeTitle").value.trim();
+  if (!title) return;
+  await api(`/admin/majors/${majorId}/grades`, { method: "POST", body: JSON.stringify({ title }) });
+  document.getElementById("newGradeTitle").value = "";
+  await loadTree(); onMajorChange();
+}
+
+async function addChapter() {
+  const gradeId = document.getElementById("gradeSelect").value;
+  const title = document.getElementById("newChapterTitle").value.trim();
+  if (!title || !gradeId) return;
+  await api(`/admin/grades/${gradeId}/chapters`, { method: "POST", body: JSON.stringify({ title }) });
+  document.getElementById("newChapterTitle").value = "";
+  await loadTree(); onGradeChange();
+}
+
+async function addSection() {
+  const chapterId = document.getElementById("chapterSelect").value;
+  const title = document.getElementById("newSectionTitle").value.trim();
+  if (!title || !chapterId) return;
+  await api(`/admin/chapters/${chapterId}/sections`, { method: "POST", body: JSON.stringify({ title }) });
+  document.getElementById("newSectionTitle").value = "";
+  await loadTree(); onChapterChange();
+}
+
+function toggleFree() {
+  document.getElementById("priceField").style.display =
+    document.getElementById("clipFree").checked ? "none" : "block";
+}
+
+async function uploadFile(file) {
+  const { uploadUrl, objectKey } = await api("/admin/upload-url", {
+    method: "POST",
+    body: JSON.stringify({ fileName: file.name, contentType: file.type })
+  });
+  const putRes = await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": file.type }, body: file });
+  if (!putRes.ok) throw new Error("آپلود فایل " + file.name + " ناموفق بود");
+  return objectKey;
+}
+
+async function submitClip() {
+  const statusEl = document.getElementById("uploadStatus");
+  const sectionId = document.getElementById("sectionSelect").value;
+  const title = document.getElementById("clipTitle").value.trim();
+  const duration = document.getElementById("clipDuration").value.trim();
+  const isFree = document.getElementById("clipFree").checked;
+  const price = Number(document.getElementById("clipPrice").value || 0);
+  const previewFile = document.getElementById("filePreview").files[0];
+  const fullFile = document.getElementById("fileFull").files[0];
+  const pdfFile = document.getElementById("filePdf").files[0];
+
+  if (!sectionId || !title || !previewFile || !fullFile) {
+    statusEl.textContent = "بخش، عنوان، فایل پیش‌نمایش و فایل کامل الزامی است.";
+    return;
+  }
+
+  try {
+    statusEl.textContent = "در حال آپلود پیش‌نمایش…";
+    const previewObjectKey = await uploadFile(previewFile);
+    statusEl.textContent = "در حال آپلود فایل کامل…";
+    const fullObjectKey = await uploadFile(fullFile);
+    let pdfObjectKey = null;
+    if (pdfFile) {
+      statusEl.textContent = "در حال آپلود PDF…";
+      pdfObjectKey = await uploadFile(pdfFile);
+    }
+    statusEl.textContent = "در حال ثبت کلیپ…";
+    await api("/admin/clips", {
+      method: "POST",
+      body: JSON.stringify({ sectionId, title, duration, isFree, price, previewObjectKey, fullObjectKey, pdfObjectKey })
+    });
+    statusEl.textContent = "✅ کلیپ با موفقیت اضافه شد.";
+    document.getElementById("clipTitle").value = "";
+    document.getElementById("clipDuration").value = "";
+    document.getElementById("filePreview").value = "";
+    document.getElementById("fileFull").value = "";
+    document.getElementById("filePdf").value = "";
+    await loadTree(); renderClips();
+  } catch (e) {
+    statusEl.textContent = "❌ " + e.message;
+  }
+}
+
+async function deleteClip(id) {
+  if (!confirm("این کلیپ حذف شود؟")) return;
+  await api(`/admin/clips/${id}`, { method: "DELETE" });
+  await loadTree(); renderClips();
+}
+
+async function loadAnnouncements() {
+  const data = await api("/announcements");
+  const list = data.announcements || [];
+  document.getElementById("newsBody_list").innerHTML = list.map(a => `
+    <tr>
+      <td>${a.title}</td>
+      <td>${new Date(a.created_at).toLocaleDateString("fa-IR")}</td>
+      <td><button class="danger" onclick="deleteAnnouncement(${a.id})">حذف</button></td>
+    </tr>`).join("");
+}
+
+async function submitAnnouncement() {
+  const title = document.getElementById("newsTitle").value.trim();
+  const body = document.getElementById("newsBody").value.trim();
+  const statusEl = document.getElementById("newsStatus");
+  if (!title || !body) { statusEl.textContent = "عنوان و متن خبر را پر کنید."; return; }
+  try {
+    await api("/admin/announcements", { method: "POST", body: JSON.stringify({ title, body }) });
+    document.getElementById("newsTitle").value = "";
+    document.getElementById("newsBody").value = "";
+    statusEl.textContent = "✅ خبر منتشر شد.";
+    await loadAnnouncements();
+  } catch (e) {
+    statusEl.textContent = "❌ " + e.message;
+  }
+}
+
+async function deleteAnnouncement(id) {
+  if (!confirm("این خبر حذف شود؟")) return;
+  await api(`/admin/announcements/${id}`, { method: "DELETE" });
+  await loadAnnouncements();
+}
+</script>
+</body>
+</html>
